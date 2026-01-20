@@ -149,17 +149,17 @@ impl Config {
         let subdirs = ["rbac", "sets", "rbac/clients", "sets/ignore", "sets/drop"];
         for subdir in subdirs {
             let dir_path = working_dir.join(subdir);
-            if !dir_path.exists() {
-                fs::create_dir_all(&dir_path)?;
-                SecurityService::set_owner_group_perms(
+            if dir_path.exists() {
+                // Verify permissions if it already exists
+                SecurityService::check_owner_group_perms(
                     &dir_path,
                     &self.user,
                     &self.group,
                     SEC_DIR_PERM,
                 )?;
             } else {
-                // Verify permissions if it already exists
-                SecurityService::check_owner_group_perms(
+                fs::create_dir_all(&dir_path)?;
+                SecurityService::set_owner_group_perms(
                     &dir_path,
                     &self.user,
                     &self.group,

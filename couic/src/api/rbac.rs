@@ -50,7 +50,7 @@ impl Scope {
         Self { resource, verb }
     }
 
-    fn matches(&self, other: &Scope) -> bool {
+    fn matches(self, other: Scope) -> bool {
         (self.resource == Resource::Any || self.resource == other.resource)
             && (self.verb == Verb::Any || self.verb == other.verb)
     }
@@ -182,7 +182,7 @@ impl RBACService {
         }
     }
 
-    pub fn check_authorization(&self, token: Uuid, scope: &Scope) -> Option<Client> {
+    pub fn check_authorization(&self, token: Uuid, scope: Scope) -> Option<Client> {
         let client = self.clients.get(&token)?;
         let permissions = self.roles.get(&client.group)?;
 
@@ -569,7 +569,7 @@ mod tests {
             .unwrap();
         let scope = Scope::with(Resource::Policy, Verb::Delete);
 
-        let result = service.check_authorization(admin_client.token, &scope);
+        let result = service.check_authorization(admin_client.token, scope);
         assert!(result.is_some());
         assert_eq!(result.unwrap().name.as_str(), DEFAULT_USER);
     }
@@ -590,14 +590,14 @@ mod tests {
         let read_scope = Scope::with(Resource::Policy, Verb::Get);
         assert!(
             service
-                .check_authorization(client_token, &read_scope)
+                .check_authorization(client_token, read_scope)
                 .is_some()
         );
 
         let list_scope = Scope::with(Resource::Policy, Verb::List);
         assert!(
             service
-                .check_authorization(client_token, &list_scope)
+                .check_authorization(client_token, list_scope)
                 .is_some()
         );
 
@@ -605,7 +605,7 @@ mod tests {
         let delete_scope = Scope::with(Resource::Policy, Verb::Delete);
         assert!(
             service
-                .check_authorization(client_token, &delete_scope)
+                .check_authorization(client_token, delete_scope)
                 .is_none()
         );
     }
@@ -625,14 +625,14 @@ mod tests {
         let delete_scope = Scope::with(Resource::Policy, Verb::Delete);
         assert!(
             service
-                .check_authorization(client_token, &delete_scope)
+                .check_authorization(client_token, delete_scope)
                 .is_some()
         );
 
         let create_scope = Scope::with(Resource::Policy, Verb::Create);
         assert!(
             service
-                .check_authorization(client_token, &create_scope)
+                .check_authorization(client_token, create_scope)
                 .is_some()
         );
 
@@ -640,7 +640,7 @@ mod tests {
         let stats_scope = Scope::with(Resource::Stats, Verb::Get);
         assert!(
             service
-                .check_authorization(client_token, &stats_scope)
+                .check_authorization(client_token, stats_scope)
                 .is_none()
         );
     }
@@ -660,7 +660,7 @@ mod tests {
         let stats_scope = Scope::with(Resource::Stats, Verb::List);
         assert!(
             service
-                .check_authorization(client_token, &stats_scope)
+                .check_authorization(client_token, stats_scope)
                 .is_some()
         );
 
@@ -668,7 +668,7 @@ mod tests {
         let policy_scope = Scope::with(Resource::Policy, Verb::List);
         assert!(
             service
-                .check_authorization(client_token, &policy_scope)
+                .check_authorization(client_token, policy_scope)
                 .is_none()
         );
     }
@@ -688,7 +688,7 @@ mod tests {
         let peer_scope = Scope::with(Resource::Policy, Verb::Peer);
         assert!(
             service
-                .check_authorization(client_token, &peer_scope)
+                .check_authorization(client_token, peer_scope)
                 .is_some()
         );
 
@@ -696,7 +696,7 @@ mod tests {
         let get_scope = Scope::with(Resource::Policy, Verb::Get);
         assert!(
             service
-                .check_authorization(client_token, &get_scope)
+                .check_authorization(client_token, get_scope)
                 .is_none()
         );
     }
@@ -709,7 +709,7 @@ mod tests {
         let invalid_token = Uuid::new_v4();
         let scope = Scope::with(Resource::Policy, Verb::Get);
 
-        assert!(service.check_authorization(invalid_token, &scope).is_none());
+        assert!(service.check_authorization(invalid_token, scope).is_none());
     }
 
     #[test]
@@ -751,33 +751,33 @@ mod tests {
     #[test]
     fn test_scope_matches_exact() {
         let scope = Scope::with(Resource::Policy, Verb::Get);
-        assert!(scope.matches(&Scope::with(Resource::Policy, Verb::Get)));
-        assert!(!scope.matches(&Scope::with(Resource::Policy, Verb::Delete)));
-        assert!(!scope.matches(&Scope::with(Resource::Stats, Verb::Get)));
+        assert!(scope.matches(Scope::with(Resource::Policy, Verb::Get)));
+        assert!(!scope.matches(Scope::with(Resource::Policy, Verb::Delete)));
+        assert!(!scope.matches(Scope::with(Resource::Stats, Verb::Get)));
     }
 
     #[test]
     fn test_scope_matches_any_resource() {
         let any_resource = Scope::with(Resource::Any, Verb::Get);
-        assert!(any_resource.matches(&Scope::with(Resource::Policy, Verb::Get)));
-        assert!(any_resource.matches(&Scope::with(Resource::Stats, Verb::Get)));
-        assert!(!any_resource.matches(&Scope::with(Resource::Policy, Verb::Delete)));
+        assert!(any_resource.matches(Scope::with(Resource::Policy, Verb::Get)));
+        assert!(any_resource.matches(Scope::with(Resource::Stats, Verb::Get)));
+        assert!(!any_resource.matches(Scope::with(Resource::Policy, Verb::Delete)));
     }
 
     #[test]
     fn test_scope_matches_any_verb() {
         let any_verb = Scope::with(Resource::Policy, Verb::Any);
-        assert!(any_verb.matches(&Scope::with(Resource::Policy, Verb::Get)));
-        assert!(any_verb.matches(&Scope::with(Resource::Policy, Verb::Delete)));
-        assert!(!any_verb.matches(&Scope::with(Resource::Stats, Verb::Get)));
+        assert!(any_verb.matches(Scope::with(Resource::Policy, Verb::Get)));
+        assert!(any_verb.matches(Scope::with(Resource::Policy, Verb::Delete)));
+        assert!(!any_verb.matches(Scope::with(Resource::Stats, Verb::Get)));
     }
 
     #[test]
     fn test_scope_matches_any_any() {
         let any_any = Scope::with(Resource::Any, Verb::Any);
-        assert!(any_any.matches(&Scope::with(Resource::Policy, Verb::Get)));
-        assert!(any_any.matches(&Scope::with(Resource::Stats, Verb::Delete)));
-        assert!(any_any.matches(&Scope::with(Resource::Clients, Verb::Create)));
+        assert!(any_any.matches(Scope::with(Resource::Policy, Verb::Get)));
+        assert!(any_any.matches(Scope::with(Resource::Stats, Verb::Delete)));
+        assert!(any_any.matches(Scope::with(Resource::Clients, Verb::Create)));
     }
 
     #[test]

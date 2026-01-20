@@ -1,3 +1,4 @@
+#![allow(clippy::similar_names)]
 use std::fs;
 use std::path::Path;
 use std::process;
@@ -100,7 +101,7 @@ fn main() {
 
 async fn server(app: axum::Router, cfg: config::Config) {
     if Path::new(&cfg.server.socket).exists() {
-        fs::remove_file(&cfg.server.socket).expect("Fail to remove couic socket file")
+        fs::remove_file(&cfg.server.socket).expect("Fail to remove couic socket file");
     }
     let uds =
         UnixListener::bind(&cfg.server.socket).expect("Error creating unix socket domain listener");

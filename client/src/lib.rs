@@ -8,7 +8,7 @@ use std::{fs, io};
 
 use uuid::Uuid;
 
-use common::{Client, CompositeError, ErrorCode};
+use common::{ClientFile, CompositeError, ErrorCode};
 
 mod api;
 
@@ -186,13 +186,13 @@ impl CouicClient {
         &self.base_url
     }
 
-    fn load_client_file<P: AsRef<Path>>(path: P) -> Result<Client, CouicError> {
+    fn load_client_file<P: AsRef<Path>>(path: P) -> Result<ClientFile, CouicError> {
         let client_file = path.as_ref();
         if client_file.is_file()
             && client_file.extension().and_then(|ext| ext.to_str()) == Some("toml")
         {
             let content = fs::read_to_string(client_file)?;
-            let client: Client = toml::de::from_str(&content)?;
+            let client: ClientFile = toml::de::from_str(&content)?;
             return Ok(client);
         }
         Err(CouicError::Io(io::Error::new(

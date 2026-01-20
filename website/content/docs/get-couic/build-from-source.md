@@ -63,8 +63,8 @@ To test the previously compiled binaries locally, we need to create the Couic wo
 ### Create a working directory
 
 ```bash {filename="command"}
-$ mkdir local
-$ cp configs/couic*.toml local
+mkdir local
+cp configs/couic*.toml local
 ```
 
 ### Edit Couic configuration

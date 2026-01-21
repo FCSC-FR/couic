@@ -109,7 +109,7 @@ The `client` and `common` crates are internal libraries and are not published on
 
 ### OpenAPI Specification
 
-An [OpenAPI specification](openapi.json) is provided to facilitate client development. This machine-readable document enables:
+An [OpenAPI specification](/json/openapi.json) is provided to facilitate client development. This machine-readable document enables:
 
 - Automatic client library generation
 - Request validation

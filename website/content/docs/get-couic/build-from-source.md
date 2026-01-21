@@ -63,8 +63,8 @@ To test the previously compiled binaries locally, we need to create the Couic wo
 ### Create a working directory
 
 ```bash {filename="command"}
-$ mkdir local
-$ cp configs/couic*.toml local
+mkdir local
+cp configs/couic*.toml local
 ```
 
 ### Edit Couic configuration
@@ -120,7 +120,7 @@ client_file = "/path_to_local_dir/rbac/clients/couicctl.toml"
 You should now be ready to interact with a fully functional Couic installation. Test it using `couicctl` from another terminal:
 
 ```bash {filename="command"}
-$ ./release/couicctl -c ./local/couicctl.toml
+./release/couicctl -c ./local/couicctl.toml
 ```
 
 ```txt {filename="output"}

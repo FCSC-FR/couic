@@ -58,9 +58,8 @@ impl TagRegistry {
             .map_err(|_| TagRegistryError::LockPoisoned)?;
 
         if let Some(&id) = inner.by_name.get(tag) {
-            let entry = match inner.by_id.get_mut(&id) {
-                Some(e) => e,
-                None => return Err(TagRegistryError::InvalidId),
+            let Some(entry) = inner.by_id.get_mut(&id) else {
+                return Err(TagRegistryError::InvalidId);
             };
             entry.refcount += 1;
             return Ok(id);

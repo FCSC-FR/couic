@@ -200,36 +200,30 @@ impl LpmStore {
             .write()
             .map_err(|_| CompositeError::new(ErrorCode::Einternal, "Failed to acquire lock"))?;
 
-        match items.get_mut(&cidr) {
-            Some(existing) => {
-                let old_stored = *existing;
+        if let Some(existing) = items.get_mut(&cidr) {
+            let old_stored = *existing;
 
-                // Update eBPF map if tag changed
-                if existing.tag_id != new_stored.tag_id {
-                    let mut ebpf_map = self.ebpf_map.write().map_err(|_| {
-                        CompositeError::new(ErrorCode::Einternal, "Failed to acquire ebpf_map lock")
-                    })?;
+            // Update eBPF map if tag changed
+            if existing.tag_id != new_stored.tag_id {
+                let mut ebpf_map = self.ebpf_map.write().map_err(|_| {
+                    CompositeError::new(ErrorCode::Einternal, "Failed to acquire ebpf_map lock")
+                })?;
 
-                    ebpf_map.insert_entry(&cidr, &new_stored).map_err(|e| {
-                        CompositeError::new(
-                            ErrorCode::Einternal,
-                            &format!("ebpf update error: {e}"),
-                        )
-                    })?;
-                }
-
-                *existing = new_stored;
-                Ok(old_stored)
+                ebpf_map.insert_entry(&cidr, &new_stored).map_err(|e| {
+                    CompositeError::new(ErrorCode::Einternal, &format!("ebpf update error: {e}"))
+                })?;
             }
-            None => {
-                let mut ce = CompositeError::new(ErrorCode::Enotfound, "submitted entry not found");
-                ce.add_detail(
-                    "cidr",
-                    ErrorCode::Enotfound,
-                    &format!("cidr `{cidr}` not found"),
-                );
-                Err(ce)
-            }
+
+            *existing = new_stored;
+            Ok(old_stored)
+        } else {
+            let mut ce = CompositeError::new(ErrorCode::Enotfound, "submitted entry not found");
+            ce.add_detail(
+                "cidr",
+                ErrorCode::Enotfound,
+                &format!("cidr `{cidr}` not found"),
+            );
+            Err(ce)
         }
     }
 
@@ -376,12 +370,9 @@ impl LpmStore {
                 thread::sleep(CLEANUP_INTERVAL);
                 cycle_count = cycle_count.wrapping_add(1);
 
-                let mut items = match items_clone.write() {
-                    Ok(items) => items,
-                    Err(_) => {
-                        error!("cleanup error: Failed to acquire write lock");
-                        continue;
-                    }
+                let Ok(mut items) = items_clone.write() else {
+                    error!("cleanup error: Failed to acquire write lock");
+                    continue;
                 };
 
                 // Shrink HashMap capacity periodically
@@ -410,12 +401,9 @@ impl LpmStore {
                     .unwrap_or_default()
                     .as_secs();
 
-                let mut ebpf_map = match ebpf_map_clone.write() {
-                    Ok(lock) => lock,
-                    Err(_) => {
-                        error!("cleanup error: Failed to acquire ebpf_map lock");
-                        continue;
-                    }
+                let Ok(mut ebpf_map) = ebpf_map_clone.write() else {
+                    error!("cleanup error: Failed to acquire ebpf_map lock");
+                    continue;
                 };
 
                 let mut removed_count = 0;
@@ -425,13 +413,13 @@ impl LpmStore {
                     }
 
                     match ebpf_map.remove_entry(cidr) {
-                        Ok(_) => {
+                        Ok(()) => {
                             // Send tag_id to release channel
                             if let Err(e) = tag_release_sender.send(entry.tag_id) {
                                 error!("cleanup: Failed to send tag {} for release: {e}", entry.tag_id);
                             }
                             removed_count += 1;
-                            false 
+                            false
                         }
                         Err(e) => {
                             if e.to_string().contains("mismatch") {

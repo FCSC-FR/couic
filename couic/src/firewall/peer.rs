@@ -28,9 +28,9 @@ pub struct PeerService {
 }
 
 impl PeerService {
-    pub fn new(config: Config) -> Result<Self, PeerServiceError> {
+    pub fn new(config: &Config) -> Result<Self, PeerServiceError> {
         let (sender, receiver) = bounded::<PeerJob>(MAX_BUFFER_SIZE);
-        let clients = Self::initialize_clients(&config)?;
+        let clients = Self::initialize_clients(config)?;
         Self::spawn_worker(clients, receiver);
         Ok(Self { sender })
     }
@@ -140,12 +140,12 @@ impl PeerService {
                 }
 
                 // Exponential backoff if any client failed
-                if !all_success {
-                    thread::sleep(backoff_delay);
-                    backoff_delay = (backoff_delay * 2).min(MAX_BACKOFF);
-                } else {
+                if all_success {
                     // reset backoff after success
                     backoff_delay = Duration::from_secs(1);
+                } else {
+                    thread::sleep(backoff_delay);
+                    backoff_delay = (backoff_delay * 2).min(MAX_BACKOFF);
                 }
             }
         });

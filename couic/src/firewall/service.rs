@@ -78,7 +78,7 @@ impl FirewallService {
     pub fn new(config: Config) -> Result<Self, FirewallServiceError> {
         let peer_service = if let Some(peering) = &config.peering {
             if peering.enabled {
-                Some(PeerService::new(config.clone())?)
+                Some(PeerService::new(&config.clone())?)
             } else {
                 None
             }
@@ -179,24 +179,21 @@ impl FirewallService {
     fn launch_tag_release_worker(tag_registry: TagRegistry, receiver: Receiver<TagId>) {
         thread::spawn(move || {
             loop {
-                match receiver.recv() {
-                    Ok(tag_id) => {
-                        // Release the first one
+                if let Ok(tag_id) = receiver.recv() {
+                    // Release the first one
+                    if let Err(e) = tag_registry.release(tag_id) {
+                        error!("Failed to release tag {tag_id}: {e}");
+                    }
+
+                    // Batch drain any additional pending releases
+                    for tag_id in receiver.try_iter() {
                         if let Err(e) = tag_registry.release(tag_id) {
                             error!("Failed to release tag {tag_id}: {e}");
                         }
-
-                        // Batch drain any additional pending releases
-                        for tag_id in receiver.try_iter() {
-                            if let Err(e) = tag_registry.release(tag_id) {
-                                error!("Failed to release tag {tag_id}: {e}");
-                            }
-                        }
                     }
-                    Err(_) => {
-                        warn!("Tag release channel disconnected; worker exiting");
-                        break;
-                    }
+                } else {
+                    warn!("Tag release channel disconnected; worker exiting");
+                    break;
                 }
             }
         });
@@ -211,7 +208,7 @@ impl FirewallService {
         }
     }
 
-    /// Convert Entry to StoredEntry by acquiring a tag from the registry
+    /// Convert Entry to `StoredEntry` by acquiring a tag from the registry
     fn entry_to_stored(&self, entry: &Entry) -> Result<StoredEntry, CompositeError> {
         let tag_str = entry.tag.as_deref().unwrap_or("");
         let tag_id = self.tag_registry.acquire(tag_str).map_err(|e| {
@@ -225,7 +222,7 @@ impl FirewallService {
         })
     }
 
-    /// Convert StoredEntry to Entry by looking up the tag name from the registry
+    /// Convert `StoredEntry` to Entry by looking up the tag name from the registry
     fn stored_to_entry(
         &self,
         cidr: NormalizedCidr,
@@ -390,8 +387,12 @@ impl FirewallService {
                 Err(e) => {
                     error!("Error reading stats for {label}: {e}");
                     xdp_stats.insert(label.to_string(), PktStats::default());
+                    return Err(CompositeError::new(
+                        ErrorCode::Einternal,
+                        &format!("Error reading stats for {label}: {e}"),
+                    ));
                 }
-            };
+            }
         }
 
         let stats = Stats {
@@ -433,11 +434,19 @@ impl FirewallService {
                         }
                         Err(e) => {
                             error!("Error getting tag name for ID {tag_id}: {e}");
+                            return Err(CompositeError::new(
+                                ErrorCode::Einternal,
+                                &format!("Tag acquisition error: {e}"),
+                            ));
                         }
                     }
                 }
                 Err(e) => {
                     error!("Error reading tag stats: {e}");
+                    return Err(CompositeError::new(
+                        ErrorCode::Einternal,
+                        &format!("Error reading tag stats: {e}"),
+                    ));
                 }
             }
         }
@@ -470,7 +479,7 @@ impl FirewallService {
             let sets_dir_str = sets_dir.to_str().ok_or_else(|| {
                 CompositeError::new(
                     ErrorCode::Einternal,
-                    &format!("Failed to convert {sets_dir:?} to string"),
+                    &format!("Failed to convert {} to string", sets_dir.display()),
                 )
             })?;
             self.reload_sets_from_dir(sets_dir_str, policy)?;
@@ -770,7 +779,7 @@ impl FirewallService {
         name: &SetName,
     ) -> Result<std::path::PathBuf, CompositeError> {
         let sets_dir = self.get_sets_dir(policy)?;
-        Ok(sets_dir.join(format!("{}{}", name, SET_EXTENSION)))
+        Ok(sets_dir.join(format!("{name}{SET_EXTENSION}")))
     }
 
     /// Writes entries to a set file atomically
@@ -784,13 +793,13 @@ impl FirewallService {
         // Write content to temp file
         let content: String = entries
             .iter()
-            .map(|e| e.to_string())
+            .map(std::string::ToString::to_string)
             .collect::<Vec<_>>()
             .join("\n");
         fs::write(&tmp_path, &content).map_err(|e| {
             CompositeError::new(
                 ErrorCode::Einternal,
-                &format!("Failed to write temp file: {}", e),
+                &format!("Failed to write temp file: {e}"),
             )
         })?;
 
@@ -806,7 +815,7 @@ impl FirewallService {
             let _ = fs::remove_file(&tmp_path);
             CompositeError::new(
                 ErrorCode::Einternal,
-                &format!("Failed to set file permissions: {}", e),
+                &format!("Failed to set file permissions: {e}"),
             )
         })?;
 
@@ -816,7 +825,7 @@ impl FirewallService {
             let _ = fs::remove_file(&tmp_path);
             CompositeError::new(
                 ErrorCode::Einternal,
-                &format!("Failed to rename temp file: {}", e),
+                &format!("Failed to rename temp file: {e}"),
             )
         })?;
 
@@ -831,13 +840,13 @@ impl FirewallService {
         for entry in fs::read_dir(&sets_dir).map_err(|e| {
             CompositeError::new(
                 ErrorCode::Einternal,
-                &format!("Failed to read sets directory: {}", e),
+                &format!("Failed to read sets directory: {e}"),
             )
         })? {
             let entry = entry.map_err(|e| {
                 CompositeError::new(
                     ErrorCode::Einternal,
-                    &format!("Failed to access directory entry: {}", e),
+                    &format!("Failed to access directory entry: {e}"),
                 )
             })?;
 
@@ -850,7 +859,7 @@ impl FirewallService {
                 let metadata = fs::metadata(&path).map_err(|e| {
                     CompositeError::new(
                         ErrorCode::Einternal,
-                        &format!("Failed to get file metadata: {}", e),
+                        &format!("Failed to get file metadata: {e}"),
                     )
                 })?;
 
@@ -884,7 +893,7 @@ impl FirewallService {
         if !set_path.exists() {
             return Err(CompositeError::new(
                 ErrorCode::Enotfound,
-                &format!("Set '{}' not found for policy '{}'", name, policy),
+                &format!("Set '{name}' not found for policy '{policy}'"),
             ));
         }
 
@@ -898,14 +907,14 @@ impl FirewallService {
         .map_err(|e| {
             CompositeError::new(
                 ErrorCode::Einvalid,
-                &format!("Set file has wrong permissions: {}", e),
+                &format!("Set file has wrong permissions: {e}"),
             )
         })?;
 
         let content = fs::read_to_string(&set_path).map_err(|e| {
             CompositeError::new(
                 ErrorCode::Einternal,
-                &format!("Failed to read set file: {}", e),
+                &format!("Failed to read set file: {e}"),
             )
         })?;
 
@@ -951,7 +960,7 @@ impl FirewallService {
         if set_path.exists() {
             return Err(CompositeError::new(
                 ErrorCode::Econflict,
-                &format!("Set '{}' already exists for policy '{}'", name, policy),
+                &format!("Set '{name}' already exists for policy '{policy}'"),
             ));
         }
 
@@ -976,7 +985,7 @@ impl FirewallService {
         if !set_path.exists() {
             return Err(CompositeError::new(
                 ErrorCode::Enotfound,
-                &format!("Set '{}' not found for policy '{}'", name, policy),
+                &format!("Set '{name}' not found for policy '{policy}'"),
             ));
         }
 
@@ -995,14 +1004,14 @@ impl FirewallService {
         if !set_path.exists() {
             return Err(CompositeError::new(
                 ErrorCode::Enotfound,
-                &format!("Set '{}' not found for policy '{}'", name, policy),
+                &format!("Set '{name}' not found for policy '{policy}'"),
             ));
         }
 
         fs::remove_file(&set_path).map_err(|e| {
             CompositeError::new(
                 ErrorCode::Einternal,
-                &format!("Failed to delete set file: {}", e),
+                &format!("Failed to delete set file: {e}"),
             )
         })?;
 

@@ -94,7 +94,7 @@ impl ReportingService {
                      Dropping new report to prevent memory exhaustion."
                 ),
                 TrySendError::Disconnected(_) => {
-                    error!("Reporting channel disconnected; unable to send report")
+                    error!("Reporting channel disconnected; unable to send report");
                 }
             }
         }
@@ -128,7 +128,7 @@ impl ReportingService {
                 }
 
                 match reporting_client.send_reports(&buffer) {
-                    Ok(_) => {
+                    Ok(()) => {
                         info!(
                             "Sent {} reports successfully to {}",
                             buffer.len(),

@@ -49,19 +49,16 @@ pub async fn auth_middleware(
         .rbac_service
         .read()
         .await
-        .check_authorization(uuid_token, scope);
+        .check_authorization(uuid_token, *scope);
 
-    match client {
-        Some(client) => {
-            // Store client for handlers logging
-            req.extensions_mut().insert(client);
+    if let Some(client) = client {
+        // Store client for handlers logging
+        req.extensions_mut().insert(client);
 
-            Ok(next.run(req).await)
-        }
-        None => {
-            warn!("Unauthorized access attempt with token: {}", uuid_token);
-            Err(unauthorized_error())
-        }
+        Ok(next.run(req).await)
+    } else {
+        warn!("Unauthorized access attempt with token: {}", uuid_token);
+        Err(unauthorized_error())
     }
 }
 

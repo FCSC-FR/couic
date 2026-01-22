@@ -43,7 +43,7 @@ uuid = { version = "1.19", default-features = false }
 # couic
 axum = { version = "0.8", default-features = false }
 caps = { version = "0.5", default-features = false }
-nix = { version = "0.30", default-features = false }
+nix = { version = "0.31", default-features = false }
 tokio = { version = "1.49", default-features = false }
 
 # couicctl

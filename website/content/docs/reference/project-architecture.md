@@ -60,7 +60,7 @@ The `couicctl` command-line interface provides administrative control over Couic
 - Query daemon status and statistics
 - Support for multiple output formats (table, JSON)
 
-For detailed usage, see the [couicctl reference](couicctl.md).
+For detailed usage, see the [couicctl reference](/docs/reference/couicctl).
 
 ## Auxiliary Components
 
@@ -75,7 +75,7 @@ The `couic-report` service is a webhook endpoint that receives telemetry data fr
 - Trait-based notification system (Discord supported, extensible)
 - Threshold-based alerting with color-coded severity
 
-For deployment instructions, see the [couic-report documentation](couic-report.md).
+For deployment instructions, see the [couic-report documentation](/docs/administration/reporting/couic-report).
 
 ### `couicmon`
 

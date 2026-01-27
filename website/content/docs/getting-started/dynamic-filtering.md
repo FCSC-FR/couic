@@ -105,5 +105,5 @@ XDP Stats:
 ```
 
 {{< callout type="info" >}}
-couicctl provides full control of Couic through its REST API. For more details, see the [couicctl reference](couicctl.md).
+`couicctl` provides full control of Couic through its REST API. For more details, see the [couicctl reference](/docs/reference/couicctl).
 {{< /callout >}}

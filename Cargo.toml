@@ -38,7 +38,7 @@ toml = { version = "0.9.11", default-features = false }
 tracing = { version = "0.1", default-features = false }
 tracing-subscriber = { version = "0.3", default-features = false }
 tracing-appender = { version = "0.2", default-features = false }
-uuid = { version = "1.19", default-features = false }
+uuid = { version = "1.20", default-features = false }
 
 # couic
 axum = { version = "0.8", default-features = false }

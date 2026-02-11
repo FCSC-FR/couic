@@ -29,12 +29,12 @@ url = { version = "2", default-features = false }
 clap = { version = "4.5", default-features = false }
 crossbeam-channel = { version = "0.5", default-features = false }
 ipnet = { version = "2.11", default-features = false }
-rand = { version = "0.9", default-features = false }
+rand = { version = "0.10", default-features = false }
 reqwest = { version = "0.13", default-features = false }
 serde = { version = "1.0", default-features = false }
 serde_json = { version = "1.0", default-features = false }
 thiserror = { version = "2", default-features = false }
-toml = { version = "0.9.11", default-features = false }
+toml = { version = "1.0", default-features = false }
 tracing = { version = "0.1", default-features = false }
 tracing-subscriber = { version = "0.3", default-features = false }
 tracing-appender = { version = "0.2", default-features = false }

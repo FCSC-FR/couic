@@ -15,9 +15,10 @@ use crate::{
         middleware::auth_middleware,
         rbac::{Resource, Scope, Verb},
     },
+    error::CompositeError,
     extractors::ValidatedJson,
 };
-use common::{Action, Client, PeerJob, Policy, PolicyPath, RawEntry};
+use common::{Action, Client, ErrorCode, PeerJob, Policy, PolicyPath, RawEntry};
 
 /// List all entries based on policy
 async fn list_entries(
@@ -91,11 +92,11 @@ async fn delete_entry(
                     "failed to delete entry: policy={}, cidr={} is in a set",
                     policy_path.policy, policy_path.cidr
                 );
-                return (
-                    StatusCode::UNPROCESSABLE_ENTITY,
+                return CompositeError::new(
+                    ErrorCode::Econflict,
                     "Entry defined in a set cannot be removed",
                 )
-                    .into_response();
+                .into_response();
             }
 
             match state

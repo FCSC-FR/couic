@@ -28,7 +28,7 @@ url = { version = "2", default-features = false }
 # common
 clap = { version = "4.5", default-features = false }
 crossbeam-channel = { version = "0.5", default-features = false }
-ipnet = { version = "2.11", default-features = false }
+ipnet = { version = "2.12", default-features = false }
 rand = { version = "0.10", default-features = false }
 reqwest = { version = "0.13", default-features = false }
 serde = { version = "1.0", default-features = false }
@@ -44,7 +44,7 @@ uuid = { version = "1.21", default-features = false }
 axum = { version = "0.8", default-features = false }
 caps = { version = "0.5", default-features = false }
 nix = { version = "0.31", default-features = false }
-tokio = { version = "1.49", default-features = false }
+tokio = { version = "1.50", default-features = false }
 
 # couicctl
 clap_mangen = { version = "0.2", default-features = false }

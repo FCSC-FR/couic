@@ -26,7 +26,7 @@ readme = "README.md"
 url = { version = "2", default-features = false }
 
 # common
-clap = { version = "4.5", default-features = false }
+clap = { version = "4.6", default-features = false }
 crossbeam-channel = { version = "0.5", default-features = false }
 ipnet = { version = "2.12", default-features = false }
 rand = { version = "0.10", default-features = false }

@@ -39,7 +39,9 @@ menu:
 
 params:
   description: "Couic is an open-source XDP-based filtering solution for Layer 7 DDoS defense, controllable through REST API"
-  author: "FCSC-FR"
+  author:
+    name: "FCSC-FR"
+    email: "couic@fcsc.fr"
   images:
     - /images/couic-og.png
   navbar:

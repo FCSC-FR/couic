@@ -106,7 +106,7 @@ fn check_ipv6(address: u128) -> (u32, Option<u64>, bool) {
 
 #[inline(always)]
 fn bump_tag_stats(map: &LruPerCpuHashMap<u64, PktStats>, tag_id: u64, pkt_size: u64) {
-    if let Some(ptr) = map.get_ptr_mut(&tag_id) {
+    if let Some(ptr) = map.get_ptr_mut(tag_id) {
         unsafe {
             (*ptr).rx_packets = (*ptr).rx_packets.saturating_add(1);
             (*ptr).rx_bytes = (*ptr).rx_bytes.saturating_add(pkt_size);
@@ -116,7 +116,7 @@ fn bump_tag_stats(map: &LruPerCpuHashMap<u64, PktStats>, tag_id: u64, pkt_size: 
             rx_packets: 1,
             rx_bytes: pkt_size,
         };
-        let _ = map.insert(&tag_id, &stats, 0);
+        let _ = map.insert(tag_id, stats, 0);
     }
 }
 

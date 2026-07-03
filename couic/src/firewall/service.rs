@@ -10,7 +10,7 @@ use ipnet::IpNet;
 use aya::{
     Ebpf, EbpfError, include_bytes_aligned,
     maps::{LpmTrie, MapData, MapError, PerCpuArray, PerCpuHashMap as LruHashMap},
-    programs::{ProgramError, Xdp, XdpFlags},
+    programs::{ProgramError, Xdp, XdpMode},
 };
 use crossbeam_channel::{Receiver, Sender, unbounded};
 use tracing::{debug, error, info, warn};
@@ -103,13 +103,13 @@ impl FirewallService {
             .try_into()?;
         program.load()?;
 
-        let xdp_flags = match config.operation_mode {
-            OperationMode::Generic => XdpFlags::SKB_MODE,
-            OperationMode::Native => XdpFlags::DRV_MODE,
-            OperationMode::Offloaded => XdpFlags::HW_MODE,
+        let xdp_mode = match config.operation_mode {
+            OperationMode::Generic => XdpMode::Skb,
+            OperationMode::Native => XdpMode::Driver,
+            OperationMode::Offloaded => XdpMode::Hardware,
         };
         for iface in &config.ifaces {
-            program.attach(iface, xdp_flags)?;
+            program.attach(iface, xdp_mode)?;
             info!(
                 "XDP program attached to interface: {iface} (mode: {:?})",
                 config.operation_mode

@@ -165,7 +165,7 @@ fn print_tag_stats(tag_stats: &TagStats, policy: &str) {
 
     let mut table = Table::new();
     table
-        .load_preset(UTF8_FULL)
+        .load_style(UTF8_FULL)
         .set_content_arrangement(ContentArrangement::Dynamic)
         .set_header(vec!["Tag", "Policy", "RX Packets", "RX Bytes"]);
 

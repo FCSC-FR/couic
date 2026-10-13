@@ -146,7 +146,7 @@ fn print_entries(entries: Vec<Entry>, quiet: bool, policy: &str) {
     } else {
         let mut table = Table::new();
         table
-            .load_preset(UTF8_FULL)
+            .load_style(UTF8_FULL)
             .set_content_arrangement(ContentArrangement::Dynamic)
             .set_header(vec!["Policy", "CIDR", "Tag", "Expiration"]);
 
@@ -165,7 +165,7 @@ fn print_entries(entries: Vec<Entry>, quiet: bool, policy: &str) {
 fn print_entry(entry: Entry, policy: &str) {
     let mut table = Table::new();
     table
-        .load_preset(UTF8_FULL)
+        .load_style(UTF8_FULL)
         .set_content_arrangement(ContentArrangement::Dynamic)
         .set_header(vec!["Policy", "CIDR", "Tag", "Expiration"]);
 

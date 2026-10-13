@@ -1,7 +1,7 @@
 use axum::{
     extract::{Request, State},
     middleware::Next,
-    response::{IntoResponse, Response},
+    response::Response,
 };
 use tracing::warn;
 use uuid::Uuid;
@@ -16,7 +16,7 @@ pub async fn auth_middleware(
     State(state): State<AppState>,
     mut req: Request,
     next: Next,
-) -> Result<Response, Response> {
+) -> Result<Response, CompositeError> {
     // Extract and validate Authorization header
     let auth_header = req
         .headers()
@@ -62,8 +62,6 @@ pub async fn auth_middleware(
     }
 }
 
-fn unauthorized_error() -> Response {
+fn unauthorized_error() -> CompositeError {
     CompositeError::new(ErrorCode::Eunauthorized, "Unauthorized")
-        .render_json()
-        .into_response()
 }

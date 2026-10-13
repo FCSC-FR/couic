@@ -8,6 +8,9 @@ repository.workspace = true
 homepage.workspace = true
 description = "Telemetry aggregation and Discord notifications for Couic"
 
+# Use the default lint set for this crate.
+[lints]
+
 [[bin]]
 name = "couic-report"
 path = "src/main.rs"

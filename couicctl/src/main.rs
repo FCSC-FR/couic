@@ -46,8 +46,6 @@ fn main() -> Result<(), CommandError> {
         if let Err(e) = cli::execute(client, command) {
             eprintln!("Error executing command: {e}");
             std::process::exit(1);
-        } else {
-            Ok(())
         }
     } else {
         cli::Cli::command()
@@ -55,4 +53,5 @@ fn main() -> Result<(), CommandError> {
             .map_err(|e| CommandError::from(config::ConfigError::from(e)))?;
         std::process::exit(0);
     }
+    Ok(())
 }

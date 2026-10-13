@@ -8,6 +8,10 @@ description.workspace = true
 readme.workspace = true
 repository.workspace = true
 homepage.workspace = true
+keywords.workspace = true
+
+# Use the default lint set for this crate.
+[lints]
 
 [dependencies]
 axum = { workspace = true, features = ["http1", "tokio", "query", "json"] }

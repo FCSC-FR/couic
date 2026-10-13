@@ -7,6 +7,9 @@ license.workspace = true
 repository.workspace = true
 homepage.workspace = true
 
+# Use the default lint set for this crate.
+[lints]
+
 [dependencies]
 aya-ebpf = { workspace = true }
 network-types = { workspace = true }

@@ -58,7 +58,6 @@ aya = { version = "0.14", default-features = false }
 aya-build = { version = "0.2", default-features = false }
 aya-ebpf = { version = "0.2", default-features = false }
 cargo_metadata = { version = "0.23", default-features = false }
-libc = { version = "0.2", default-features = false }
 network-types = { version = "0.2", default-features = false }
 which = { version = "8.0.0", default-features = false }
 
@@ -72,7 +71,7 @@ arithmetic_overflow = { level = "deny", priority = -1 }
 [workspace.lints.clippy]
 pedantic = { level = "deny", priority = -1 }
 nursery = { level = "deny", priority = -1 }
-missing-errors-doc = "allow"
+missing_errors_doc = "allow"
 
 indexing_slicing = { level = "deny", priority = -1 }
 fallible_impl_from = { level = "deny", priority = -1 }

@@ -20,7 +20,8 @@ setup: ## Configure the build environment
 	rustup target add --toolchain nightly aarch64-unknown-linux-gnu
 	rustup target add x86_64-unknown-linux-gnu aarch64-unknown-linux-gnu
 	rustup target add x86_64-unknown-linux-musl aarch64-unknown-linux-musl
-	$(CARGO) install bpf-linker
+	$(CARGO) install cargo-binstall --locked
+	$(CARGO) binstall --no-confirm bpf-linker
 	$(CARGO) install git-cliff
 	$(CARGO) install cargo-deb
 	$(CARGO) install cargo-generate-rpm

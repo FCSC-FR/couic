@@ -25,7 +25,8 @@ The following elements are required to build them:
 The `Makefile` contains three main targets:
 
 - `setup`: invokes `rustup` to install all needed toolchains, targets and
-  components for Rust;
+  components for Rust, then installs `bpf-linker` from its prebuilt release via
+  `cargo-binstall`;
 - `debug`: builds non-stripped libraries and executables with debugging logs
   activated. Outputs to a repository named `debug`;
 - `release`: builds stripped and optimized libraries and executables with

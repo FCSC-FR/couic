@@ -17,6 +17,21 @@ Couic provides a command-line tool (`couicctl`) for managing filtering policies 
 Keep in mind that any entries added through the CLI are temporary and will not persist after Couic restarts.
 {{< /callout >}}
 
+## Expiration format
+
+For both `drop add` and `ignore add`, `-e` / `--expiration` accepts a duration
+relative to the current time, with an explicit unit: `30s` for thirty seconds,
+`1m` for one minute, `1h30m` for one hour and thirty minutes, or `2d` for two days.
+A bare number such as `-e 1` is invalid; use `-e 1m` for one minute.
+
+Use `-e 0`, or omit the option, for no expiration. These entries still do not
+persist after Couic restarts.
+
+The REST API and the CLI's `--json` output represent `expiration` as an absolute
+Unix timestamp in seconds, with `0` meaning no expiration. The CLI converts the
+duration to this timestamp before sending the request. Its table output shows
+the remaining duration instead.
+
 ## Control policies
 
 ### Use `couicctl` to always allow local network:

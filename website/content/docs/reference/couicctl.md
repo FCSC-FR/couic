@@ -301,7 +301,7 @@ Add entry to drop list
 * `-t`, `--tag <TAG>` — Tag for the entry. Valid characters are a-zA-Z0-9-_ and max length is 64
 
   Default value: `couicctl`
-* `-e`, `--expiration <EXPIRATION>` — Expiration time in minutes. The default value is zero, which means the entry never expires; otherwise, the expiration is set in minutes in the future.
+* `-e`, `--expiration <EXPIRATION>` — Duration from now until the entry expires, with explicit units (e.g., 30s, 1m, 1h30m, 2d). Bare numbers other than 0 are not accepted. Use 0 or omit this option for no expiration. The CLI converts the duration to a Unix timestamp in seconds for the API.
 
   Default value: `0`
 * `--json`
@@ -378,7 +378,7 @@ Add entry to ignore list
 ###### **Options:**
 
 * `-t`, `--tag <TAG>` — Tag for the entry. Valid characters are a-zA-Z0-9-_ and max length is 64
-* `-e`, `--expiration <EXPIRATION>` — Expiration time in minutes. The default value is zero, which means the entry never expires; otherwise, the expiration is set in minutes in the future.
+* `-e`, `--expiration <EXPIRATION>` — Duration from now until the entry expires, with explicit units (e.g., 30s, 1m, 1h30m, 2d). Bare numbers other than 0 are not accepted. Use 0 or omit this option for no expiration. The CLI converts the duration to a Unix timestamp in seconds for the API.
 
   Default value: `0`
 * `--json`

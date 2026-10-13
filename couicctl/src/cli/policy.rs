@@ -198,8 +198,8 @@ pub enum DropSubCommand {
             short = 'e',
             long,
             default_value = "0",
-            help = "Expiration time in minutes",
-            long_help = "Expiration time in minutes. The default value is zero, which means the entry never expires; otherwise, the expiration is set in minutes in the future."
+            help = "Expiration duration (e.g., 30s, 1m, 1h30m); 0 means never",
+            long_help = "Duration from now until the entry expires, with explicit units (e.g., 30s, 1m, 1h30m, 2d). Bare numbers other than 0 are not accepted. Use 0 or omit this option for no expiration. The CLI converts the duration to a Unix timestamp in seconds for the API."
         )]
         expiration: String,
         #[arg(long)]
@@ -293,8 +293,8 @@ pub enum IgnoreSubCommand {
             short = 'e',
             long,
             default_value = "0",
-            help = "Expiration time in minutes",
-            long_help = "Expiration time in minutes. The default value is zero, which means the entry never expires; otherwise, the expiration is set in minutes in the future."
+            help = "Expiration duration (e.g., 30s, 1m, 1h30m); 0 means never",
+            long_help = "Duration from now until the entry expires, with explicit units (e.g., 30s, 1m, 1h30m, 2d). Bare numbers other than 0 are not accepted. Use 0 or omit this option for no expiration. The CLI converts the duration to a Unix timestamp in seconds for the API."
         )]
         expiration: String,
         #[arg(long)]
